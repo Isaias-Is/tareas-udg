@@ -128,7 +128,7 @@ int cargarCSV(void)
     {
         if (archivo.eof())
         {
-            cout << "Guardado exitoso!" << "\n";
+            cout << "Carga exitosa!" << "\n";
             return -1;
         }
         getline(archivo, tanques[i].nombre, ',');
