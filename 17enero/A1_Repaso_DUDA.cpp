@@ -75,9 +75,24 @@ int mostrarTanques(void)
     }
 
     cout << "--------TANQUES ALMACENADOS--------" << "\n";
-    for (int i = 0; i <= cont; i++)
+    for (cont = 0; cont < 5; cont)
     {
-        cout << "Tanque " << i + 1 << ":\n";
+        getline(archivo, temp, ',');
+        cout << temp << "\n";
+        if (archivo.eof()) {
+            cout << "EOF Alcanzado." << "\n";
+            cont--;
+            break;
+        }
+getline(archivo, tanques[i].nombre, ',');
++        tanques[cont].nombre = temp;
+         getline(archivo, temp, ',');
++        tanques[cont].salud = stoi(temp);
+         getline(archivo, temp, ',');
++        tanques[cont].dano = stoi(temp);
+         getline(archivo, temp, '\n');
++        tanques[cont].vel = stof(temp);
++        cont++;        cout << "Tanque " << i + 1 << ":\n";
         cout << "Nombre: " << tanques[i].nombre << "\n";
         cout << "Salud: " << tanques[i].salud << "\n";
         cout << "Daño: " << tanques[i].dano << "\n";

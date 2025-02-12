@@ -11,7 +11,11 @@
 /PDFs/
 
 #Ignore documentation.
+/Docus/
 *.docx
 
 #Ignore Python Cache.
 __pycache__/
+
+#Ignore homework ZIPs.
+A*código.zip

@@ -115,7 +115,7 @@ int guardarCSV(void)
 
 int cargarCSV(void)
 {
-    ifstream archivo("tanques.csv");
+    ifstream archivo("tanques copy.csv");
     cout << "--------CARGAR CSV--------" << "\n";
     cout << "Cargando CSV..." << "\n";
     if (!archivo.is_open())
@@ -124,21 +124,24 @@ int cargarCSV(void)
         return -1;
     }
     string temp;
+    cont = 0;
     for (int i = 0; i < 5; i++)
     {
+        getline(archivo, tanques[i].nombre, ',');
         if (archivo.eof())
         {
-            cout << "Carga exitosa!" << "\n";
-            return -1;
+            break;
         }
-        getline(archivo, tanques[i].nombre, ',');
         getline(archivo, temp, ',');
         tanques[i].salud = stoi(temp);
         getline(archivo, temp, ',');
         tanques[i].dano = stoi(temp);
         getline(archivo, temp, '\n');
         tanques[i].vel = stof(temp);
+        cont++;
     }
+    cont--;
+    cout << "Carga exitosa!" << "\n";
     archivo.close(); // Imperativo cerrar el stream de datos.
 
     return 1;
