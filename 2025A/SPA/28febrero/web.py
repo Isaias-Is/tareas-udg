@@ -4,7 +4,6 @@ from materia import generarMateriaAleatoria
 #from archivos import guardar_csv, recuperar_csv
 
 admin =  Administrador()
-admin.recuperar("materias")
 
 def agregarMateria():
     mat = Materia()
@@ -61,9 +60,9 @@ with ui.tab_panels(tabs).classes('fixed-center justify-center align-center'):
     with ui.tab_panel(exportarImportar_tab).classes('bg-gray-100'):
         with ui.card().classes('text-center justify-center items-center'):
             ui.label("Guardar/Exportar/Importar").classes('text-x1 font-bold')
-            ui.button("Guardar", on_click=lambda: admin.respaldarCSV('materiaCSV')).style('width: 125px')
-            ui.button("Exportar", on_click=lambda: ui.download('materiaCSV')).style('width: 125px')
-            ui.upload(on_upload= lambda evento: admin.cargarCSV(evento) or limpiar_tabla()).style('width: 125px')
+            ui.button("Guardar", on_click=lambda: admin.respaldarCSV('materiaCSV') or ui.notify("Archivo guardado existosamente", type='positive')).style('width: 125px')
+            ui.button("Exportar", on_click=lambda: ui.download('materiaCSV.csv')).style('width: 125px')
+            ui.upload(on_upload= lambda evento: admin.cargarCSV(evento) or limpiar_tabla() or actualizar_tabla() or ui.notify("Carga terminada", type='positive')).style('width: 125px')
 
 tabs.set_value('Ver Materias')
 ui.run(port=8001)
