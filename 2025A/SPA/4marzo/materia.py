@@ -3,34 +3,35 @@ from random import randint
 #Base class.
 class Materia:
     _id = 0
-
-    def __init__(self):
+    
+    def __init__(self, nombre="", clave="", carrera="", creditos=0):
         Materia._id += 1
         self._id = Materia._id
-        self.nombre = ""
-        self.clave = ""
-        self.carrera = ""
-        self.creditos = 0
-    
+        self.nombre = nombre
+        self.clave = clave
+        self.carrera = carrera
+        self.creditos = creditos
+
     def __repr__(self):
         return f"id={self._id},nombre={self.nombre},clave={self.clave},carrera={self.carrera},creditos={self.creditos}"
 
     #Returns a custom dict. 
     def to_dict(self):
         return {
-            'id': self._id
+            'id': self._id,
             'nombre': self.nombre,
             'clave': self.clave,
             'carrera': self.carrera,
             'creditos': self.creditos,
         }
 
+    # In probation period.
     @property
-    def id(self):
-        return self._id
+    def id():
+        return _id
     @id.setter
-    def id(self, nuevo_id):
-        self._id = nuevo_id
+    def id(Materia, nuevo_id):
+        _id = nuevo_id
 
 #Funcion que genera materias aleatorias.
 nombres = ["Calculo", "Algebra", "Fisica", "Quimica", "Biologia", "Programacion", "Base de Datos", "Redes", "Sistemas Operativos", "Estructura de Datos", "Analisis de Algoritmos", "Inteligencia Artificial", "Mineria de Datos", "Probabilidad y Estadistica", "Matemáticas Discretas", "Lógica y Conjuntos", "Teoria de la Computacion", "Compiladores", "Sistemas Embebidos"]

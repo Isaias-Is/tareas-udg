@@ -20,3 +20,6 @@ __pycache__/
 
 #Ignore homework ZIPs.
 A*código.zip
+
+#Ignore .bat files.
+*.bat

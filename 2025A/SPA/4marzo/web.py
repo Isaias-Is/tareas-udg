@@ -1,6 +1,7 @@
 from nicegui import ui
 from administrador import Administrador, Materia
 from materia import generarMateriaAleatoria
+#from archivos import guardar_csv, recuperar_csv
 
 admin =  Administrador()
 admin.recuperar("materias")
@@ -32,7 +33,7 @@ with ui.tabs().classes('fixed-bottom bg-emerald-600') as tabs:
     tabla_tab = ui.tab("Ver Materias", icon='table_view').classes('text-white')
     exportarImportar_tab = ui.tab("Exportar/Importar", icon='cloud_download').classes('text-white')
 
-with ui.tab_panels(tabs).classes('fixed-center'):
+with ui.tab_panels(tabs).classes('fixed-center justify-center align-center'):
     with ui.tab_panel(formulario_tab).classes('bg-gray-100'):
         with ui.card():
             ui.label("Ingrese los datos de la materia").classes('text-x1 font-bold')
@@ -58,11 +59,11 @@ with ui.tab_panels(tabs).classes('fixed-center'):
                 ui.button("Vaciar Admin", on_click=lambda: limpiar_tabla() or admin.materias.clear())
 
     with ui.tab_panel(exportarImportar_tab).classes('bg-gray-100'):
-        with ui.card().classes('text-center'):
+        with ui.card().classes('text-center justify-center items-center'):
             ui.label("Guardar/Exportar/Importar").classes('text-x1 font-bold')
-            ui.button("Guardar", on_click=guardar("materias"))
-            ui.button("Exportar", on_click=lambda: ("materias"))
-            ui.button("Importar", on_click=lambda: admin.recuperar("materias"))
+            ui.button("Guardar", on_click=lambda: admin.respaldarCSV('materiaCSV')).style('width: 125px')
+            ui.button("Exportar", on_click=lambda: ui.download('materiaCSV')).style('width: 125px')
+            ui.upload(on_upload= lambda evento: admin.cargarCSV(evento) or limpiar_tabla()).style('width: 125px')
 
 tabs.set_value('Ver Materias')
 ui.run(port=8001)
