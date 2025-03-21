@@ -49,6 +49,7 @@ def menu():
 with ui.tabs().classes('fixed-bottom bg-[#00953b]') as tabs:
     ingresarBici_tab = ui.tab("Ingresar Bicicleta", icon='directions_bike').classes('text-white')
     mostrarBicis_tab = ui.tab("Mostrar Bicicletas", icon='table_view').classes('text-white')
+    guardar_recuperar_tab = ui.tab("Guardar/Recuperar", icon='cloud_download').classes('text-white')
 
 with ui.tab_panels(tabs).classes('fixed-center'):
     with ui.tab_panel(ingresarBici_tab).classes('bg-gray-100'):
@@ -71,6 +72,10 @@ with ui.tab_panels(tabs).classes('fixed-center'):
                 ui.button("Mostrar", on_click= lambda: tabla.update_rows([i.to_dict() for i in bicipuerto.bicis]))
                 ui.button("Vaciar Bicipuerto", on_click= lambda: tabla.update_rows([]) or bicipuerto.bicis.clear())
 
+    with ui.tab_panel(guardar_recuperar_tab).classes('bg-gray-100'):
+        with ui.card():
+            pass
+        
 #menu()
 tabs.set_value('Mostrar Bicicletas')
 ui.run(port=8001)
