@@ -75,8 +75,13 @@ with ui.tab_panels(tabs).classes('fixed-center'):
     with ui.tab_panel(guardar_recuperar_tab).classes('bg-gray-100'):
         with ui.card().classes('text-center justify-center items-center'):
             ui.label("Guardar/Exportar/Importar").classes('text-x1 font-bold')
+<<<<<<< HEAD
             ui.button("Guardar", on_click=lambda: bicipuerto.respaldarCSV('bicipuertoCSV') or ui.notify("Archivo guardado existosamente", type='positive')).style('width: 125px')
             ui.button("Exportar", on_click=lambda: ui.download('bicipuertoCSV.csv')).style('width: 125px')
+=======
+            ui.button("Guardar", on_click=lambda: bicipuerto.respaldarCSV('materiaCSV') or ui.notify("Archivo guardado existosamente", type='positive')).style('width: 125px')
+            ui.button("Exportar", on_click=lambda: ui.download('materiaCSV.csv')).style('width: 125px')
+>>>>>>> 76e249621f6c131900a3729dc57913c70910d2be
             ui.upload(on_upload= lambda evento: bicipuerto.cargarCSV(evento) or tabla.update_rows([]) or tabla.update_rows([i.to_dict() for i in bicipuerto.bicis])
                       or ui.notify("Carga terminada", type='positive')).style('width: 125px')
 
