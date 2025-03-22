@@ -20,3 +20,6 @@ __pycache__/
 
 #Ignore homework ZIPs.
 A*código.zip
+
+#Venv
+/2025A/SPA/examen_practico/.venv

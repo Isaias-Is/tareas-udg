@@ -61,6 +61,10 @@ with ui.tab_panels(tabs).classes('fixed-center'):
             with ui.row().classes('gap-2 justify-center'):
                 ui.button("Ingresar", on_click=lambda: ingresar_bici() or tabla.update_rows([i.to_dict() for i in bicipuerto.bicis]))
                 ui.button("Limpiar Campos", on_click=limpiar_campos)
+            ui.label("Ordenar Tabla").classes('text-base font-bold')
+            with ui.dropdown_button("Ordenar", auto_close="True"):
+                ui.item("Ascendente", on_click=lambda: bicipuerto.bicis.sort() or tabla.update_rows([i.to_dict() for i in bicipuerto.bicis]))
+                ui.item("Descendente", on_click=lambda: bicipuerto.bicis.sort(reverse=True) or tabla.update_rows([i.to_dict() for i in bicipuerto.bicis]))
     with ui.tab_panel(mostrarBicis_tab).classes('bg-gray-100'):
         with ui.card():
             ui.label("Bicicletas del Bicipuerto").classes('text-xl font-bold')

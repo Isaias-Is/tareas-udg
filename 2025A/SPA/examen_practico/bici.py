@@ -19,6 +19,9 @@ class Bici:
             "horasUso": self.horasUso,
             "metrosRecorridos": self.metrosRecorridos
         }
+
+    def __lt__(self, other):
+        return self.metrosRecorridos < other.metrosRecorridos
     
 def generarBiciAleatoria():
     return Bici(randint(0, 100), randint(0, 10000))
