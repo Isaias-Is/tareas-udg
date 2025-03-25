@@ -21,5 +21,8 @@ __pycache__/
 #Ignore homework ZIPs.
 A*código.zip
 
-#Venv
-/2025A/SPA/examen_practico/.venv
+#Ignore .bat files.
+*.bat
+
+#Ignore .venv folder.
+.venv
