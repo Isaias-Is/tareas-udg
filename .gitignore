@@ -18,11 +18,14 @@
 #Ignore Python Cache.
 __pycache__/
 
-#Ignore homework ZIPs.
+#Ignore homework and proyect ZIPs.
 A*código.zip
+E*código.zip
 
 #Ignore .bat files.
 *.bat
 
-#Ignore .venv folder.
-.venv
+# Ignore individual environments.
+.venv/
+#Preserve top environment.
+!2025A/.venv
