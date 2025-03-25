@@ -18,8 +18,11 @@
 #Ignore Python Cache.
 __pycache__/
 
-#Ignore homework ZIPs.
+#Ignore homework and proyect ZIPs.
 A*código.zip
+E*código.zip
 
 #Venv
-/2025A/SPA/examen_practico/.venv
+.venv/
+# Top environment.
+!2025A/.venv
