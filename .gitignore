@@ -26,3 +26,7 @@ A*código.zip
 
 #Ignore .venv folder.
 .venv
+
+
+#Don't ignore importante CSV files.
+!/2025A/SI2/Tarea_3/datos.csv
