@@ -41,9 +41,9 @@ with ui.tab_panels(tabs).classes('fixed-center'):
             r_input = ui.input("R", placeholder="Rojo (0-255)", validation={'El número debe estar entre 0 y 255.': lambda val: regex.search(val) is not None}).style('width: 100%')
             g_input = ui.input("G", placeholder="Verde (0-255)", validation={'El número debe estar entre 0 y 255.': lambda val: regex.search(val) is not None}).style('width: 100%')
             b_input = ui.input("B", placeholder="Azul (0-255)", validation={'El número debe estar entre 0 y 255.': lambda val: regex.search(val) is not None}).style('width: 100%')
-            ui.button("Agregar Punto", on_click=agregar_punto)
-            ui.button("Limpiar Campos", on_click=limpiar_campos or print("Limpio"))
-            ui.button("Crear 10 Puntos Aleatorios", on_click=lambda: (admin.insertar_al_final(punto) for punto in [admin.generar() for _ in range(10)]) and tabla.update_rows([punto.a_diccionario() for punto in admin.puntos]))
+            ui.button("Agregar Punto", on_click=lambda: agregar_punto() or ui.notify("Punto agregado", type='positive'))
+            ui.button("Limpiar Campos", on_click=lambda: limpiar_campos())
+            ui.button("Crear 10 Puntos Aleatorios", on_click=lambda: (admin.insertar_al_final(punto) for punto in [admin.generar() for _ in range(10)]) and tabla.update_rows([punto.a_diccionario() for punto in admin.puntos]) or ui.notify("10 puntos aleatorios creados", type='positive'))
             
     with ui.tab_panel(mostrar_puntos_tab).classes('bg-gray-100'):
         with ui.card().classes('justify-center'):

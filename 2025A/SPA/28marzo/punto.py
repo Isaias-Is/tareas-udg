@@ -72,10 +72,10 @@ class AdministradorPuntos:
             punto.color = color
             punto.id = int(fila['id'])
             self.puntos.append(punto)
-        print("PUNTOS\n")
-        print(f"{'ID':<5}{'X':<5}{'Y':<5}{'Radio':<4}{'Color (R,G,B)':<15}")
-        for punto in self.puntos:
-            print(f"{punto.id:<5}{punto.x:<5}{punto.y:<5}{punto.radio:<4}{punto.color[0]:<4}{punto.color[1]:<4}{punto.color[2]:<4}")
+        #print("PUNTOS\n")
+        #print(f"{'ID':<5}{'X':<5}{'Y':<5}{'Radio':<4}{'Color (R,G,B)':<15}")
+        #for punto in self.puntos:
+            #print(f"{punto.id:<5}{punto.x:<5}{punto.y:<5}{punto.radio:<4}{punto.color[0]:<4}{punto.color[1]:<4}{punto.color[2]:<4}")
 
 
     def ordenar_por(self, atributo:str, orden:str=['ascendente', 'descendente']):
