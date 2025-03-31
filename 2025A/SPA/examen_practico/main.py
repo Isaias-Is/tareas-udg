@@ -84,8 +84,6 @@ with ui.tab_panels(tabs).classes('fixed-center'):
             ui.upload(on_upload= lambda evento: bicipuerto.cargarCSV(evento) or tabla.update_rows([]) or tabla.update_rows([i.to_dict() for i in bicipuerto.bicis])
                       or ui.notify("Carga terminada", type='positive')).style('width: 125px')
 
-            pass
-
 #menu()
 tabs.set_value('Mostrar Bicicletas')
 ui.run(port=8001)
