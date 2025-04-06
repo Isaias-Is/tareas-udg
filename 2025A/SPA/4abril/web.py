@@ -1,9 +1,21 @@
 from punto import Punto, AdministradorPuntos
 from nicegui import ui
+import matplotlib.pyplot as plt
 import re
 
 admin = AdministradorPuntos()
 regex = re.compile(r'\b([0-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)\b')
+
+def dibujarPuntos():
+    plt.cla()
+    with plot:
+        for punto in admin.puntos:
+            plt.scatter(punto.x, punto.y, s=punto.radio, color=[punto.color[0]/255, punto.color[1]/255, punto.color[2]/255], alpha=0.7)
+        plt.title("Puntos")
+        plt.xlim(0, 500)
+        plt.ylim(0, 500)
+        plt.xlabel('x')
+        plt.ylabel('y')
 
 def limpiar_campos():
     x_input.value = ""
@@ -72,10 +84,19 @@ with ui.tab_panels(tabs).classes('fixed-center'):
             ui.button("Exportar", on_click=lambda: ui.download('puntos.csv')).style('width: 125px')
             ui.upload(on_upload= lambda evento: admin.cargar(evento) or tabla.update_rows([i.a_diccionario() for i in admin.puntos])
                       or ordenar_tabla_puntos(orden_select.value, orden_checkbox.value) or ui.notify("Carga terminada", type='positive')).style('width: 125px')
-    with ui.ta_panel(grafica_tab).classes('bg-gray-100'):
+    with ui.tab_panel(grafica_tab).classes('bg-gray-100'):
         with ui.card().classes('justify-center'):
             ui.label("Gráfica").classes('text-xl font-bold')
-            
+            with ui.pyplot(figsize=(5,5), close=False).style('height: 600px') as plot:
+                plt.title("Puntos")
+                plt.xlim(0, 500)
+                plt.ylim(0, 500)
+                plt.xlabel('x')
+                plt.ylabel('y')
+                #plt.gca()
+            with ui.row().classes('gap-2 justify-center items-center'):
+                ui.button("Dibujar Puntos", on_click=dibujarPuntos)
+                #plt.scatter(, [], s=0, color='black', alpha=0.5)
 
             
             
