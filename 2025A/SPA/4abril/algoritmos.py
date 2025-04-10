@@ -1,19 +1,8 @@
+from punto import Punto
 from dataclasses import dataclass
 from random import randint
 from typing import List
 from math import sqrt
-
-@dataclass
-class Punto:
-    x: int
-    y: int
-    red: int
-    green: int
-    blue: int
-    radio: int
-
-def generar_punto() -> Punto:
-    return Punto(randint(0,500), randint(0,500), randint(0,255), randint(0,255), randint(0,255), randint(5,50))
 
 @dataclass
 class PuntoMasCercano:
