@@ -1,32 +1,70 @@
-from punto import Punto, AdministradorPuntos
 from algoritmos import puntos_mas_cercanos
+from grafos import Grafo
+from punto import Punto, AdministradorPuntos
 from nicegui import ui
 import matplotlib.pyplot as plt
 import re
+from pprint import pprint
 
 admin = AdministradorPuntos()
+grafo = Grafo(admin.puntos)
 regex = re.compile(r'\b([0-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)\b')
+
+def actualizar_lista_conexiones():
+    if admin.puntos.__len__() < 2:
+        ui.notify("Debe haber al menos 2 puntos para crear una conexión", type='negative', position="bottom-center")
+        return
+    punto1_select.set_options({punto: str(punto) for punto in admin.puntos if punto != punto2_select.value}, value=punto1_select.value)
+    punto2_select.set_options({punto: str(punto) for punto in admin.puntos if punto != punto1_select.value}, value=punto2_select.value)
+
+def operacion_conexion(op: int):
+    try:
+        if op == 1:
+            grafo.agregar_conexion(punto1_select.value, punto2_select.value)
+            ui.notify("Conexión creada", type='positive', position="bottom-right")
+        elif op == 2:
+            grafo.eliminar_conexion(punto1_select.value, punto2_select.value)
+            ui.notify("Conexión eliminada", type='positive', position="bottom-right")
+    except ValueError as e:
+        ui.notify(str(e), type='negative', position="bottom-right")
+        return
+    actualizar_grafo()
+
+def actualizar_grafo():
+    limpiar_grafica()
+    plt.title("Grafo")
+    grafo.checar_nuevos_puntos(admin.puntos)
+    with conexiones_plot:
+        for punto in admin.puntos:
+            plt.scatter(punto.x, punto.y, s=punto.radio, color=[punto.color[0]/255, punto.color[1]/255, punto.color[2]/255], alpha=0.7)
+            plt.text(punto.x, punto.y, str(punto), ha="center", va='center')
+        for punto, conexiones in grafo.grafo.items():
+            for conexion in conexiones:
+                plt.plot([punto.x, conexion.x], [punto.y, conexion.y], color=[punto.color[0]/255, punto.color[1]/255, punto.color[2]/255], linewidth=1)
 
 def limpiar_grafica():
     plt.cla()
-    plt.title("Puntos")
     plt.xlim(0, 500)
     plt.ylim(0, 500)
     plt.xlabel('x')
     plt.ylabel('y')
 
-
 def dibujarPuntos():
     limpiar_grafica()
-    with plot:
+    plt.title("Puntos")
+    with puntos_plot:
         for punto in admin.puntos:
             plt.scatter(punto.x, punto.y, s=punto.radio, color=[punto.color[0]/255, punto.color[1]/255, punto.color[2]/255], alpha=0.7)
 
 def dibujarPuntosMasCercanos(puntos_mas_cercanos):
+    if puntos_mas_cercanos is None:
+        ui.notify("Debe haber agregados mínimo 2 puntos", type='negative', position="bottom-right")
+        return
     limpiar_grafica()
-    with plot:
+    plt.title("Puntos")
+    with puntos_plot:
         dibujarPuntos()
-        print("Conectando puntos más cercanos...")
+        #print("Conectando puntos más cercanos...")
         for par in puntos_mas_cercanos:
             plt.plot([par.punto1.x, par.punto2.x], [par.punto1.y, par.punto2.y], color=(par.punto1.color[0]/255, par.punto1.color[1]/255, par.punto1.color[2]/255), alpha=0.5)
 
@@ -58,6 +96,7 @@ with ui.tabs().classes('fixed-bottom bg-[#297373]') as tabs:
     crear_puntos_tab = ui.tab("Añadir Puntos", icon='add_location').classes('text-white')
     mostrar_puntos_tab = ui.tab("Mostrar Puntos", icon='table_view').classes('text-white')
     grafica_tab = ui.tab("Gráfica", icon='show_chart').classes('text-white')
+    graficar_conexiones_tab = ui.tab("Conexiones", icon='share').classes('text-white').on("click", lambda: actualizar_lista_conexiones() or actualizar_grafo())
     guardar_recuperar_tab = ui.tab("Guardar/Recuperar", icon='cloud_download').classes('text-white')
 
 with ui.tab_panels(tabs).classes('fixed-center'):
@@ -93,6 +132,30 @@ with ui.tab_panels(tabs).classes('fixed-center'):
                 orden_select.set_value('id')
                 orden_checkbox = ui.checkbox(on_change= lambda: ordenar_tabla_puntos(orden_select.value, orden_checkbox.value))
                 ui.label("Orden Descendente").classes('align-center')
+    with ui.tab_panel(grafica_tab).classes('bg-gray-100'):
+        with ui.card().classes('justify-center'):
+            ui.label("Gráfica").classes('text-xl font-bold')
+            with ui.pyplot(figsize=(5,5), close=False).style('height: 600px') as puntos_plot:
+                limpiar_grafica()
+                plt.title("Puntos")
+            with ui.row().classes('w-full justify-center items-center'):
+                ui.button("Dibujar Puntos", on_click=dibujarPuntos)
+                ui.button("Conectar Puntos Más Cercanos", on_click=lambda: dibujarPuntosMasCercanos(puntos_mas_cercanos(admin.puntos)))
+
+    with ui.tab_panel(graficar_conexiones_tab).classes('bg-gray-100'):
+        with ui.card().classes('justify-center'):
+            ui.label("Conexiones").classes('text-xl font-bold')
+            with ui.pyplot(figsize=(5,5), close=False).style('height: 600px') as conexiones_plot:
+                limpiar_grafica()
+                plt.title("Grafo")
+            with ui.row().classes('w-full justify-center items-center'):
+                punto1_select = ui.select({punto: str(punto) for punto in admin.puntos}, label="Punto 1", on_change=lambda: actualizar_lista_conexiones()).classes('w-1/4')
+                ui.label("conectar con")
+                punto2_select = ui.select({punto: str(punto) for punto in admin.puntos}, label="Punto 2", on_change=lambda: actualizar_lista_conexion()).classes('w-1/4')
+            with ui.row().classes('w-full justify-center items-left'):
+                ui.button("Conectar", on_click=lambda: operacion_conexion(1) or actualizar_grafo())
+                ui.button("Eliminar Conexión", on_click=lambda: operacion_conexion(2) or actualizar_grafo())
+
     with ui.tab_panel(guardar_recuperar_tab).classes('bg-gray-100'):
         with ui.card().classes('text-center justify-center items-center'):
             ui.label("Guardar/Exportar/Importar").classes('text-x1 font-bold')
@@ -100,14 +163,7 @@ with ui.tab_panels(tabs).classes('fixed-center'):
             ui.button("Exportar", on_click=lambda: ui.download('puntos.csv')).style('width: 125px')
             ui.upload(on_upload= lambda evento: admin.cargar(evento) or tabla.update_rows([i.a_diccionario() for i in admin.puntos])
                       or ordenar_tabla_puntos(orden_select.value, orden_checkbox.value) or ui.notify("Carga terminada", type='positive', position="bottom-rigth")).style('width: 125px')
-    with ui.tab_panel(grafica_tab).classes('bg-gray-100'):
-        with ui.card().classes('justify-center'):
-            ui.label("Gráfica").classes('text-xl font-bold')
-            with ui.pyplot(figsize=(5,5), close=False).style('height: 600px') as plot:
-                limpiar_grafica()
-            with ui.row().classes('w-full justify-center items-center'):
-                ui.button("Dibujar Puntos", on_click=dibujarPuntos)
-                ui.button("Conectar Puntos Más Cercanos", on_click=lambda: dibujarPuntosMasCercanos(puntos_mas_cercanos(admin.puntos)))
+
             
 tabs.set_value('Añadir Puntos')
 ui.run(title="Puntos", reload=True, port=8080)

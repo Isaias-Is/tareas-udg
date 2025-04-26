@@ -30,6 +30,14 @@ class Punto:
     def id(self, id):
         self._id = id
 
+    def __repr__(self) -> str:
+        return f"({self.x},{self.y})"
+
+    def __str__(self) -> str:
+        return f"({self.x},{self.y})"
+
+    def __hash__(self):
+        return hash((self.x, self.y))
 
 def punto_aleatorio() -> Punto:
     return Punto(randint(0,500), randint(0,500), randint(5,50), (randint(0,255), randint(0,255), randint(0,255)))
