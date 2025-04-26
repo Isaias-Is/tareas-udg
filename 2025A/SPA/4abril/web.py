@@ -10,10 +10,17 @@ admin = AdministradorPuntos()
 grafo = Grafo(admin.puntos)
 regex = re.compile(r'\b([0-9]|[1-9][0-9]|[1-4][0-9][0-9]|500)\b')
 
+def tab_cambiada(tab):
+    #print(f"Tab cambiado a: {tab.value}")
+    if tab.value == "Conexiones":
+        actualizar_lista_conexiones()
+        actualizar_grafo()
+
 def actualizar_lista_conexiones():
     if admin.puntos.__len__() < 2:
         ui.notify("Debe haber al menos 2 puntos para crear una conexión", type='negative', position="bottom-center")
         return
+    plt.title("Grafo")
     valP1 = punto1_select.value
     valP2 = punto2_select.value
     punto1_select.set_options({punto: str(punto) for punto in admin.puntos if punto != punto2_select.value}, value=valP1)
@@ -36,7 +43,6 @@ def actualizar_grafo():
     limpiar_grafica()
     plt.title("Grafo")
     grafo.checar_nuevos_puntos(admin.puntos)
-    plt.title("Grafo")
     with conexiones_plot:
         for punto in admin.puntos:
             plt.scatter(punto.x, punto.y, s=punto.radio, color=[punto.color[0]/255, punto.color[1]/255, punto.color[2]/255], alpha=0.7)
@@ -95,11 +101,11 @@ def ordenar_tabla_puntos(atributo: str, orden: int = 0):
 with ui.header().classes('bg-[#E6E6E6] justify-center'):
     ui.label('Administrador de Puntos').style('color: #39393A; font-size: 36px; font-weight: bold;')
 
-with ui.tabs().classes('fixed-bottom bg-[#297373]') as tabs:
+with ui.tabs(on_change=tab_cambiada).classes('fixed-bottom bg-[#297373]') as tabs:
     crear_puntos_tab = ui.tab("Añadir Puntos", icon='add_location').classes('text-white')
     mostrar_puntos_tab = ui.tab("Mostrar Puntos", icon='table_view').classes('text-white')
     grafica_tab = ui.tab("Gráfica", icon='show_chart').classes('text-white')
-    graficar_conexiones_tab = ui.tab("Conexiones", icon='share').classes('text-white').on("click", lambda: actualizar_lista_conexiones() or actualizar_grafo())
+    graficar_conexiones_tab = ui.tab("Conexiones", icon='share').classes('text-white')
     guardar_recuperar_tab = ui.tab("Guardar/Recuperar", icon='cloud_download').classes('text-white')
 
 with ui.tab_panels(tabs).classes('fixed-center'):
