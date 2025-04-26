@@ -14,8 +14,10 @@ def actualizar_lista_conexiones():
     if admin.puntos.__len__() < 2:
         ui.notify("Debe haber al menos 2 puntos para crear una conexión", type='negative', position="bottom-center")
         return
-    punto1_select.set_options({punto: str(punto) for punto in admin.puntos if punto != punto2_select.value}, value=punto1_select.value)
-    punto2_select.set_options({punto: str(punto) for punto in admin.puntos if punto != punto1_select.value}, value=punto2_select.value)
+    valP1 = punto1_select.value
+    valP2 = punto2_select.value
+    punto1_select.set_options({punto: str(punto) for punto in admin.puntos if punto != punto2_select.value}, value=valP1)
+    punto2_select.set_options({punto: str(punto) for punto in admin.puntos if punto != punto1_select.value}, value=valP2)
 
 def operacion_conexion(op: int):
     try:
@@ -25,7 +27,7 @@ def operacion_conexion(op: int):
         elif op == 2:
             grafo.eliminar_conexion(punto1_select.value, punto2_select.value)
             ui.notify("Conexión eliminada", type='positive', position="bottom-right")
-    except ValueError as e:
+    except Exception as e:
         ui.notify(str(e), type='negative', position="bottom-right")
         return
     actualizar_grafo()
@@ -34,6 +36,7 @@ def actualizar_grafo():
     limpiar_grafica()
     plt.title("Grafo")
     grafo.checar_nuevos_puntos(admin.puntos)
+    plt.title("Grafo")
     with conexiones_plot:
         for punto in admin.puntos:
             plt.scatter(punto.x, punto.y, s=punto.radio, color=[punto.color[0]/255, punto.color[1]/255, punto.color[2]/255], alpha=0.7)
@@ -151,7 +154,7 @@ with ui.tab_panels(tabs).classes('fixed-center'):
             with ui.row().classes('w-full justify-center items-center'):
                 punto1_select = ui.select({punto: str(punto) for punto in admin.puntos}, label="Punto 1", on_change=lambda: actualizar_lista_conexiones()).classes('w-1/4')
                 ui.label("conectar con")
-                punto2_select = ui.select({punto: str(punto) for punto in admin.puntos}, label="Punto 2", on_change=lambda: actualizar_lista_conexion()).classes('w-1/4')
+                punto2_select = ui.select({punto: str(punto) for punto in admin.puntos}, label="Punto 2", on_change=lambda: actualizar_lista_conexiones()).classes('w-1/4')
             with ui.row().classes('w-full justify-center items-left'):
                 ui.button("Conectar", on_click=lambda: operacion_conexion(1) or actualizar_grafo())
                 ui.button("Eliminar Conexión", on_click=lambda: operacion_conexion(2) or actualizar_grafo())

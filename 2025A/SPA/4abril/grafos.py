@@ -6,8 +6,12 @@ class Grafo:
         self.grafo: Dict[Punto, Set[Punto]] = {punto: set() for punto in puntos}
         
     def agregar_conexion(self, punto1: Punto, punto2: Punto):
+        if (not isinstance(punto1, Punto) ) or (not isinstance(punto2, Punto)):
+            raise TypeError("Elija 2 puntos de la lista de puntos")
         if punto1 == punto2:
             raise ValueError("Se esta tratando de conectar un punto a si mismo")
+        if punto2 in self.grafo[punto1]:
+            raise ValueError("Ya hay una conexion entre los puntos")
         self.grafo[punto1].add(punto2)
         self.grafo[punto2].add(punto1)
         #print(f"Grafo: {self.grafo}")
