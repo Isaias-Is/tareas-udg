@@ -4,15 +4,55 @@
 #Description: Implementation of a PSO and logitical regression.
 
 import csv
+from math import log
+from pprint import pp, pprint
 import matplotlib.pyplot as plt
 from matplotlib import cm
 import numpy as np
 import time
+import logging
+
+#Cargar los datos del archivo CSV.
+datos = []
+def importartDatos(nombreArchivo):
+    with open(nombreArchivo, 'r') as archivo:  
+        lector = csv.DictReader(archivo)
+        global datos
+        for fila in lector:
+            datos.append([1, int(fila['x1']), int(fila['x2']), int(fila['y'])])
+importartDatos('datos.csv')
+datos = np.array(datos)
+logging.info("Datos CSV:\n", datos)
+
+#MSE for Logistical Regression
+def mse_logistico(x): #Recibe la matriz con todas las partículas.
+    logging.debug("Entra a la función mse_logistico")
+    print("Entrando a la función mse_logistico")
+    print("x: ", end="")
+    pprint(x)
+    for i in range(1):
+        #logging.debug(np.dot(datos[:, :-1], x[:]))
+        z = np.dot(datos[:, :-1], x[:]) # From datos get all the rows, but ignore the last column which is y.
+        yp = 1 / (1 + np.exp(-1 * z)) # yp means Y Prima.
+        print("yp:")
+        pprint(yp)
+        #This is the part where we calculate the MSE.
+        for j in range(len(yp)):
+            print((datos[j, -1:] - yp[j])**2)
+        #This supposedly does the same as the for loop above, but in a vectorized way.
+        tot = (datos[:, -1:] - yp)
+        print("Forma: ", end="")
+        print(yp.shape)
+        pprint(tot)
+        tot = tot**2
+
+    print("Tot:", tot)
+    return tot / dim
 
 #Hard-coded PSO params.
+dim = datos[0].size - 1 # Gets the number of dimensions, we don't take into consideration the y value.
 #Tunable
-dim = 3 #Hard code number of dimensions.
-max_iter = 100 # Máximo número de iteraciones.
+max_iter = 10 # Máximo número de iteraciones.
 num_particulas = 10 #Número de partículas que exploran el espacio
 lims = np.array([-10, 10]) # Límites del espacio de búsqueda.
 w = .9 # Factor de incercia.
@@ -22,35 +62,13 @@ c2 = 1.5 # Constante de aceleración 2.
 #BetterNotTouch
 iter =  0 # Keeps track of current iterations.
 #Matrix
-x = np.zeros((num_particulas, dim)) #Partículas de la iteración.
-xp = np.zeros((num_particulas, dim)) #Mejores partículas históricamente.
-vel_x = np.zeros((num_particulas, dim)) #Para calcular las "velocidades" de las partículas.
-fit = np.empty((num_particulas)) #Fitness de las partículas.
-fit_xp = np.empty((num_particulas)) #Mejores fitness de cada partícula hitóricamente.
-best_of_best = np.zeros(dim) #Mejor partícula global.
-best_of_best_fitness = float("inf") #Mejor fitness global.
-
-#Obtener datos del archivo CSV.
-datos = []
-y =[]
-def importartDatos(nombreArchivo):
-    with open(nombreArchivo, 'r') as archivo:  
-        lector = csv.DictReader(archivo)
-        global datos
-        for fila in lector:
-            datos.append([1, int(fila['x1']), int(fila['x2'])])
-            y.append(int(fila['y']))
-importartDatos('datos.csv')
-
-#MSE for Logistical Regression
-def mse_logistico(x): #Recibe la matriz con todas las partículas.
-    n = len(datos) #Número de datos.
-    tot = 0
-    for i in range(n):
-        z = np.sum(np.dot(datos[i], x[:]))
-        yp = 1 / (1 + np.exp(-1 * z))
-        tot += (y[i] - yp)**2
-    return tot / n
+x = np.zeros((num_particulas, dim)) # Partículas de la iteración.
+xp = np.zeros((num_particulas, dim)) # Mejores partículas históricamente.
+vel_x = np.zeros((num_particulas, dim)) # Para calcular las "velocidades" de las partículas.
+fit = np.empty((num_particulas)) # Fitness de las partículas.
+fit_xp = np.empty((num_particulas)) # Mejores fitness de cada partícula hitóricamente.
+best_of_best = np.zeros(dim) # Mejor partícula global.
+best_of_best_fitness = float("inf") # Mejor fitness global, float("inf") inits it to inifity.
 
 def actualizar_mejor_fitness(i):
     global best_of_best, best_of_best_fitness
@@ -62,9 +80,8 @@ def actualizar_mejor_fitness(i):
         fit_xp[i] = fit[i]
 
 #Etapa: Inicialización
-#Only works for 2D!!! #Replace using teacher initializaction method.
 for i in range(dim):
-    x[:, i] = np.random.rand(num_particulas) * (lims[1]-lims[0]) + lims[0]
+    x[:, i] = np.random.rand(num_particulas) * abs(lims[1]-lims[0]) + lims[0]
 xp = x
 
 for i in range(num_particulas):
@@ -109,12 +126,14 @@ if dim == 2:
     ax.scatter(x[:, 0], x[:, 1], fit[:], c='red', s=10, marker="x")
     fig.canvas.draw()
     fig.canvas.flush_events()
+# COPING ENDS HERE.
 
 #Etapa: Main Loop
 while iter < max_iter:
     for i in range(num_particulas):
         vel_x[i] = w * vel_x[i] + c1 * np.random.rand() * (xp[i] - x[i]) + c2 * np.random.rand() * (best_of_best - x[i])
-        x[i] = np.clip(x[i] + vel_x[i], lims[0], lims[1])
+        x[i] = np.clip(x[i] + vel_x[i], lims[0], lims[1], out=x[i])
+        pprint(x[i])
         fit[i] = mse_logistico(np.array(x[i]))
         actualizar_mejor_fitness(i)
         #print(x[i], fit[i])
