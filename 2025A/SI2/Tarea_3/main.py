@@ -4,13 +4,12 @@
 #Description: Implementation of a PSO and logitical regression.
 
 import csv
-from math import log
-from pprint import pp, pprint
-import matplotlib.pyplot as plt
-from matplotlib import cm
+import logging
 import numpy as np
 import time
-import logging
+import matplotlib.pyplot as plt
+from matplotlib import cm
+from pprint import pprint
 
 #Cargar los datos del archivo CSV.
 datos = []
@@ -22,40 +21,34 @@ def importartDatos(nombreArchivo):
             datos.append([1, int(fila['x1']), int(fila['x2']), int(fila['y'])])
 importartDatos('datos.csv')
 datos = np.array(datos)
+print("Datos CSV: ", end="")
+pprint(datos)
 logging.info("Datos CSV:\n", datos)
 
 #MSE for Logistical Regression
 def mse_logistico(x): #Recibe la matriz con todas las partículas.
-    logging.debug("Entra a la función mse_logistico")
-    print("Entrando a la función mse_logistico")
-    print("x: ", end="")
-    pprint(x)
-    for i in range(1):
-        #logging.debug(np.dot(datos[:, :-1], x[:]))
-        z = np.dot(datos[:, :-1], x[:]) # From datos get all the rows, but ignore the last column which is y.
-        yp = 1 / (1 + np.exp(-1 * z)) # yp means Y Prima.
-        print("yp:")
-        pprint(yp)
-        #This is the part where we calculate the MSE.
-        for j in range(len(yp)):
-            print((datos[j, -1:] - yp[j])**2)
-        #This supposedly does the same as the for loop above, but in a vectorized way.
-        tot = (datos[:, -1:] - yp)
-        print("Forma: ", end="")
-        print(yp.shape)
-        pprint(tot)
-        tot = tot**2
-
-    print("Tot:", tot)
+    #print("x: ", end="") or pprint(x)
+    z = np.dot(datos[:, :-1], x[:]) # From datos get all the rows, but ignore the last column which is y.
+    yp = 1 / (1 + np.exp(- z)) # yp means Y Prima.
+    #This is the part where we calculate the MSE.
+    """
+    for j in range(len(yp)):
+        print((datos[j, -1:] - yp[j])**2)
+    """
+    # The transpose is necessary to make the subtraction work, because datos[:, -1:] is a column vector and yp is a row vector.
+    tot = (np.transpose(datos[:, -1:]) - yp) # In order to substract two vectors, they must be of the same shape.
+    tot = tot**2
+    tot = np.sum(tot)
+    print("tot: ", tot/dim)
     return tot / dim
 
 #Hard-coded PSO params.
 dim = datos[0].size - 1 # Gets the number of dimensions, we don't take into consideration the y value.
 #Tunable
-max_iter = 10 # Máximo número de iteraciones.
-num_particulas = 10 #Número de partículas que exploran el espacio
-lims = np.array([-10, 10]) # Límites del espacio de búsqueda.
-w = .9 # Factor de incercia.
+max_iter = 20 # Máximo número de iteraciones.
+num_particulas = 15 #Número de partículas que exploran el espacio
+lims = np.array([-1, 2]) # Límites del espacio de búsqueda.
+w = 1.5 # Factor de incercia.
 c1 = 1.5 # Constante de aceleración 1.
 c2 = 1.5 # Constante de aceleración 2.
 
@@ -85,12 +78,13 @@ for i in range(dim):
 xp = x
 
 for i in range(num_particulas):
-    fit[i] = mse_logistico(np.array(x[i]))
+    fit[i] = mse_logistico(x[i])
     fit_xp[i] = fit[i]
     if i == 0:
         best_of_best = x[i]
         best_of_best_fitness = fit[i]
     actualizar_mejor_fitness(i)
+
 
 #Testing
 """
@@ -132,8 +126,7 @@ if dim == 2:
 while iter < max_iter:
     for i in range(num_particulas):
         vel_x[i] = w * vel_x[i] + c1 * np.random.rand() * (xp[i] - x[i]) + c2 * np.random.rand() * (best_of_best - x[i])
-        x[i] = np.clip(x[i] + vel_x[i], lims[0], lims[1], out=x[i])
-        pprint(x[i])
+        x[i] = np.clip(x[i] + vel_x[i], lims[0], lims[1])
         fit[i] = mse_logistico(np.array(x[i]))
         actualizar_mejor_fitness(i)
         #print(x[i], fit[i])
@@ -151,6 +144,8 @@ while iter < max_iter:
             fig.canvas.flush_events()
             #time.sleep(0.000000001)
             time.sleep(0.1)
+    print("Iteración: ", iter, " | Mejor fitness: ", best_of_best_fitness, " | Mejor particula: ", best_of_best)
+    #pprint(x)
     iter += 1
     w = .9 - .5 * (iter / max_iter) #Actualizar w so the algorithm behaves besser.
     #print("Iteración: ", iter, " | Mejor fitness: ", best_of_best_fitness, " | Mejor particula: ", best_of_best)
