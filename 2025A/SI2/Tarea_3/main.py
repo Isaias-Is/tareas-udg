@@ -3,52 +3,57 @@
 #Date: 25 de abril 2025
 #Description: Implementation of a PSO and logitical regression.
 
-import csv
-import logging
 import numpy as np
-import time
-import matplotlib.pyplot as plt
-from matplotlib import cm
-from pprint import pprint
+import csv
+
+datos_path = r"C:\Users\isald\OneDrive\Escritorio\CUCEI\INRO\2025A\Sistemas Inteligentes II\01 Tareas\tareas-udg\2025A\SI2\Tarea_3\datos.csv"
+
+import pruebas
+pruebas = pruebas.Pruebas()
+pruebas.importartDatos(datos_path)
+
+
+#np.random.seed(17)
 
 #Cargar los datos del archivo CSV.
 datos = []
 def importartDatos(nombreArchivo):
     with open(nombreArchivo, 'r') as archivo:  
-        lector = csv.DictReader(archivo)
+        lector = csv.reader(archivo)
+        lector.__next__()  # El encabezado es omitido.
         global datos
         for fila in lector:
-            datos.append([1, int(fila['x1']), int(fila['x2']), int(fila['y'])])
-importartDatos('datos.csv')
+            fila = [1] + [int(i) for i in fila] # Agregamos una dimensión a los datos del CSV.
+            datos.append(fila)
+importartDatos(datos_path)
 datos = np.array(datos)
-print("Datos CSV: ", end="")
-pprint(datos)
-logging.info("Datos CSV:\n", datos)
+numDatos = len(datos) # Anzahl of filas.
 
 #MSE for Logistical Regression
-def mse_logistico(x): #Recibe la matriz con todas las partículas.
-    #print("x: ", end="") or pprint(x)
+def mse_logistico(x): #Recibe una particula.
     z = np.dot(datos[:, :-1], x[:]) # From datos get all the rows, but ignore the last column which is y.
     yp = 1 / (1 + np.exp(- z)) # yp means Y Prima.
-    #This is the part where we calculate the MSE.
-    """
-    for j in range(len(yp)):
-        print((datos[j, -1:] - yp[j])**2)
-    """
+    # This is the part where we calculate the MSE.
     # The transpose is necessary to make the subtraction work, because datos[:, -1:] is a column vector and yp is a row vector.
-    tot = (np.transpose(datos[:, -1:]) - yp) # In order to substract two vectors, they must be of the same shape.
+    tot = np.transpose(datos[:, -1:])[0]
+    tot = tot - yp # Remove the nested lists and substract yp.
+    #print("datos - yp")
+    #print(datos[:, -1:])
+    #print(yp)
+    #print(tot)
     tot = tot**2
     tot = np.sum(tot)
-    print("tot: ", tot/dim)
-    return tot / dim
+    if not pruebas.probar_se(x, tot):
+        raise ValueError("ERROR: Los SE calculados son equivocos.")
+    return tot / numDatos
 
 #Hard-coded PSO params.
 dim = datos[0].size - 1 # Gets the number of dimensions, we don't take into consideration the y value.
 #Tunable
-max_iter = 20 # Máximo número de iteraciones.
-num_particulas = 15 #Número de partículas que exploran el espacio
-lims = np.array([-1, 2]) # Límites del espacio de búsqueda.
-w = 1.5 # Factor de incercia.
+max_iter = 100 # Máximo número de iteraciones.
+num_particulas = 10 #Número de partículas que exploran el espacio
+lims = np.array([-1, 1]) # Límites del espacio de búsqueda.
+w = .9 # Factor de incercia.
 c1 = 1.5 # Constante de aceleración 1.
 c2 = 1.5 # Constante de aceleración 2.
 
@@ -66,11 +71,11 @@ best_of_best_fitness = float("inf") # Mejor fitness global, float("inf") inits i
 def actualizar_mejor_fitness(i):
     global best_of_best, best_of_best_fitness
     if fit[i] < best_of_best_fitness:
-        best_of_best = x[i]
-        best_of_best_fitness = fit[i]
+        best_of_best = x[i].copy()
+        best_of_best_fitness = fit[i].copy()
     if fit[i] < fit_xp[i]:
-        xp[i] = x[i]
-        fit_xp[i] = fit[i]
+        xp[i] = x[i].copy()
+        fit_xp[i] = fit[i].copy()
 
 #Etapa: Inicialización
 for i in range(dim):
@@ -85,7 +90,6 @@ for i in range(num_particulas):
         best_of_best_fitness = fit[i]
     actualizar_mejor_fitness(i)
 
-
 #Testing
 """
 print("Initial positions (x):", x)
@@ -97,58 +101,18 @@ print("Initial global best position:", best_of_best)
 print("Initial global best fitness:", best_of_best_fitness)
 """
 
-# THE FOLLOWING BLOCK OF CODE IS COPIED FROM THE TEACHER'S CODE:
-# Graph initialization parameters only for fitness functions
-# defined by 2 decision variables.
-if dim == 2:
-    res = 32
-    xGraph = np.linspace(lims[0], lims[1], res)
-    yGraph = np.linspace(lims[0], lims[1], res)
-    xv, yv = np.meshgrid(xGraph, yGraph)
-    fitnessGraph = np.zeros((res, res))
-    for i in range(res):
-        for j in range(res):
-            arr = [[xv[i, j], yv[i, j]]]
-            fitnessGraph[i, j] = mse_logistico(np.asarray(arr))
-    plt.ion()
-    fig = plt.figure()
-    ax = plt.axes(projection='3d')
-    ax.set_xlabel('x')
-    ax.set_ylabel('y')
-    plt.title('mse Function', fontsize=20)
-    ax.plot_surface(xv, yv, fitnessGraph, alpha=0.6, cmap=cm.viridis)
-    ax.scatter(x[:, 0], x[:, 1], fit[:], c='red', s=10, marker="x")
-    fig.canvas.draw()
-    fig.canvas.flush_events()
-# COPING ENDS HERE.
-
 #Etapa: Main Loop
 while iter < max_iter:
     for i in range(num_particulas):
         vel_x[i] = w * vel_x[i] + c1 * np.random.rand() * (xp[i] - x[i]) + c2 * np.random.rand() * (best_of_best - x[i])
         x[i] = np.clip(x[i] + vel_x[i], lims[0], lims[1])
         fit[i] = mse_logistico(np.array(x[i]))
+        #pruebas.correr_pruebas(best_of_best, best_of_best_fitness) # For testing.
         actualizar_mejor_fitness(i)
-        #print(x[i], fit[i])
-        # THE FOLLOWING BLOCK OF CODE IS COPIED FROM THE TEACHER'S CODE:
-        # In this example, the Sphere function is plotted to
-        # visually validate the movement of the search agents.
-        if dim == 2:
-            plt.cla()
-            ax.set_xlabel('x')
-            ax.set_ylabel('y')
-            plt.title('Sphere Function', fontsize=20)
-            ax.plot_surface(xv, yv, fitnessGraph, alpha=0.6)
-            ax.scatter(x[:, 0], x[:, 1], fit[:], c='red', s=10, marker="o")
-            fig.canvas.draw()
-            fig.canvas.flush_events()
-            #time.sleep(0.000000001)
-            time.sleep(0.1)
-    print("Iteración: ", iter, " | Mejor fitness: ", best_of_best_fitness, " | Mejor particula: ", best_of_best)
-    #pprint(x)
+    #print("Iteración: ", iter, " | Mejor fitness: ", best_of_best_fitness, " | Mejor particula: ", best_of_best)
     iter += 1
     w = .9 - .5 * (iter / max_iter) #Actualizar w so the algorithm behaves besser.
-    #print("Iteración: ", iter, " | Mejor fitness: ", best_of_best_fitness, " | Mejor particula: ", best_of_best)
 
+#pruebas.correr_pruebas(best_of_best, best_of_best_fitness) # For testing.
 print("Iteración: ", iter)
 print("Mejor solución: ", best_of_best, " | Mejor fitness: ", best_of_best_fitness)
